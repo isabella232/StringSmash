@@ -9,7 +9,7 @@ for spacing/kerning.
 # system
 from vanilla import *
 import os
-import datetime 
+import datetime
 
 # Glyphs
 import GlyphsApp
@@ -21,49 +21,50 @@ reload (StringSmashDicts)
 
 class StringSmash(object):
     '''Returns string'''
-    
+
     delimL = []
     listL = []
     listR = []
     delimR = []
     flip = False
     trio = False
-    
+    space = False
+
     flipEnabled = True
     trioEnabled = True
-    
+
     # diff
     if Glyphs.font:
         f = Glyphs.font
         font = []
         for i in f.glyphs:
-        	font.append(i.name)
+            font.append(i.name)
     else:
         font = []
-    
-    
+
+
     def __init__(self):
         '''A simple GUI'''
-        self.w = FloatingWindow((-360, 40, 340, 330), "StringSmash v.1.0", textured=False)
-        
+        self.w = FloatingWindow((-360, 40, 340, 330), "StringSmash v.1.0 Mine", textured=False)
+
         # list selections
         presetList = sorted(StringSmashDicts.presetDict.keys())
         delimList = sorted(StringSmashDicts.delimDict.keys())
-        
+
         popUpLists = [
             ['-'] + delimList, # delimL
             ['-'] + presetList, # listL
             ['-'] + presetList, # listR
             ['-'] + delimList, # delimR
         ]
-        
+
         # pick preset buttons
         yPos = [20, 55, 90, 125]
         names = ['delimL', 'listL', 'listR', 'delimR']
         presets = [delimList, presetList, presetList, delimList]
         dictList = [StringSmashDicts.delimDict, StringSmashDicts.presetDict, StringSmashDicts.presetDict, StringSmashDicts.delimDict]
         changeThis = ['', '', '', '']
-        x = 0    
+        x = 0
         for i in names:
             popupButton = PopUpButton((70, yPos[x], 160, 20),
                 popUpLists[x], sizeStyle='regular', callback=self.pickPreset)
@@ -71,13 +72,13 @@ class StringSmash(object):
             popupButton.pickFrom = presets[x]
             popupButton.dict = dictList[x]
             setattr(self.w, i, popupButton)
-            
+
             # get selection buttons
             squareButton = SquareButton((240, yPos[x], -10, 20), 'Get selection', sizeStyle='regular',
                 callback=self.getSelection)
             squareButton.var = i
             setattr(self.w, 'button_%s' %i, squareButton)
-            
+
             # diff
             # decoration
             imgPath = os.path.dirname(os.path.abspath(__file__))
@@ -85,8 +86,8 @@ class StringSmash(object):
             imageButton = ImageButton((5, yPos[x]-2, 60, 24), imagePath=imgPath, title=None, bordered=False)
             setattr(self.w, 'image_%s' %i, imageButton)
             x += 1
-        
-        
+
+
         # generate buttons
         names = ['Generate and Open', 'Generate and Copy', 'Save String', 'Save MM style']
         callbackNames = ['generateAndOpen', 'generateAndCopy', 'saveString', 'saveMmStyle']
@@ -102,48 +103,48 @@ class StringSmash(object):
                 callback=callbacks[x] )
             setattr(self.w, 'button_%s' %callbackNames[x], button)
             x += 1
-        
-        
+
+
         # checkboxes
-        xPos = [95, 260]
+        xPos = [15, 90, 160]
         yPos = 175
-        titles = ['Flip', 'Trio']
+        titles = ['Flip', 'Trio', 'Space']
         x = 0
         for i in titles:
             checkBox = CheckBox((xPos[x], yPos, -10, 20), titles[x], sizeStyle='regular', value=False,
                 callback=self.swithFlipTrio)
-            temp = [0, 0]
+            temp = [0, 0, 0]
             temp[x] = 1
             checkBox.var = temp
             setattr(self.w, 'checkBox_%s' %i, checkBox)
             x += 1
-        
-        
-        # diff
-        # checkbox images
-        xPos = [20, 190]
-        yPos = 175
-        names = ['flip', 'trio']
-        x = 0
-        for i in names:
-            imgPath = os.path.dirname(os.path.abspath(__file__))
-            imgPath = os.path.join(imgPath, 'icons/%s.png' %i)
-            imageButton = ImageButton((xPos[x], yPos-2, 60, 24), imagePath=imgPath, title=None, bordered=False)
-            setattr(self.w, 'image_%s' %i, imageButton)
-            x += 1
-        
+
+
+        # # diff
+        # # checkbox images
+        # xPos = [20, 190]
+        # yPos = 175
+        # names = ['flip', 'trio']
+        # x = 0
+        # for i in names:
+        #     imgPath = os.path.dirname(os.path.abspath(__file__))
+        #     imgPath = os.path.join(imgPath, 'icons/%s.png' %i)
+        #     imageButton = ImageButton((xPos[x], yPos-2, 60, 24), imagePath=imgPath, title=None, bordered=False)
+        #     setattr(self.w, 'image_%s' %i, imageButton)
+        #     x += 1
+
         # horizontal dividers
         yPos = [160, 210]
         for i in yPos:
             horizontalLine = HorizontalLine((0, i, -0, 1))
             setattr(self.w, 'horizontalLine_%i' %i, horizontalLine)
-        
-        self.w.verticalLine = VerticalLine((170, 161, 1, 50))
-        
+
+        # self.w.verticalLine = VerticalLine((170, 161, 1, 50))
+
         self.w.open()
-    
+
     def swithFlipTrio(self, sender):
-        if sender.var == [1, 0]:
+        if sender.var[0:2] == [1, 0]:
             if self.flip == True:
                 self.flip = False
             else:
@@ -154,8 +155,8 @@ class StringSmash(object):
             else:
                 self.w.checkBox_Trio.enable(True)
                 self.trioEnabled = True
-        
-        if sender.var == [0, 1]:
+
+        if sender.var[0:2] == [0, 1]:
             if self.trio == True:
                 self.trio = False
             else:
@@ -166,8 +167,14 @@ class StringSmash(object):
             else:
                 self.w.checkBox_Flip.enable(True)
                 self.flipEnabled = True
-    
-    
+
+        if sender.var[2] == 1:
+            if self.space == True:
+                self.space = False
+            else:
+                self.space = True
+
+
     def pickPreset(self, sender):
         '''...'''
         # get the list items
@@ -177,7 +184,7 @@ class StringSmash(object):
             temp = sender.dict[dictKey]
         else:
             temp = []
-        
+
         # pass it to list
         if sender.var == 'delimL':
             self.delimL = temp
@@ -189,8 +196,8 @@ class StringSmash(object):
             self.listR = temp
         else:
             pass
-    
-    
+
+
     # diff
     def getSelection(self, sender):
         if Glyphs.font:
@@ -199,7 +206,7 @@ class StringSmash(object):
             if f.selectedLayers:
                 for i in f.selectedLayers:
                     temp.append(i.parent.name)
-            
+
             if sender.var == 'delimL':
                 self.delimL = temp
                 self.w.delimL.set(0)
@@ -210,53 +217,53 @@ class StringSmash(object):
                 self.listL = temp
                 self.w.listL.set(0)
             elif sender.var == 'listR':
-                self.listR = temp 
+                self.listR = temp
                 self.w.listR.set(0)
             else:
                 pass
-            
+
         else:
             pass
-    
-    
+
+
     def button_generateAndOpen(self, sender):
-        theString = self.generateString(self.listL, self.listR, self.delimL, self.delimR, self.flip, self.trio, True)
-        
+        theString = self.generateString(self.listL, self.listR, self.delimL, self.delimR, self.flip, self.trio, self.space, True)
+
         if theString != '':
             self.openTab(theString)
         else:
             pass
-    
-    
+
+
     def button_generateAndCopy(self, sender):
-        theString = self.generateString(self.delimL, self.delimR, self.listL, self.listR, self.flip, self.trio, False) 
-        
+        theString = self.generateString(self.delimL, self.delimR, self.listL, self.listR, self.flip, self.trio, self.space, False)
+
         if theString != '':
             os.system('echo "%s" | pbcopy' % theString) # copy to Clipboard, neat
         else:
             pass
-    
-    
+
+
     def button_saveString(self, sender):
-        theString = self.generateString(self.delimL, self.delimR, self.listL, self.listR, self.flip, self.trio, False) 
-        
+        theString = self.generateString(self.delimL, self.delimR, self.listL, self.listR, self.flip, self.trio, self.space, False)
+
         if theString != '':
             self.saveFile('StringSmash_', theString)
         else:
             pass
-    
-    
+
+
     def button_saveMmStyle(self, sender):
         aList = [x + ' ' + y for y in self.listR for x in self.listL]
-        theString = '\n'.join(aList) 
-        
+        theString = '\n'.join(aList)
+
         if theString != '':
             theString = '#KPL:P: Generated with StringSmash\n' + theString
             self.saveFile('StringSmash_MM_', theString)
         else:
             pass
-    
-    
+
+
     def makeTimeStamp(self):
         mark = str(datetime.datetime.now())
         mark = mark.replace('-', '')
@@ -264,8 +271,8 @@ class StringSmash(object):
         mark = mark.replace(':', '')
         mark = mark.replace('.', '')
         return mark
-    
-    
+
+
     # diff
     def saveFile(self, name, content):
         if Glyphs.font:
@@ -273,61 +280,61 @@ class StringSmash(object):
         else:
             aDir = os.path.expanduser('~/Desktop')
             # should offer to select a folder
-        
+
         stamp = self.makeTimeStamp()
         path = aDir + '/' + name + stamp + '.txt'
-        
+
         aFile = open(path, 'w')
         aFile.write(content)
         aFile.close()
-    
-    
+
+
     # diff
     def openTab(self, aString):
         Glyphs.currentDocument.windowController().addTabWithString_(aString)
-    
-    
+
+
     ''' this is what needed to successfully generate a string
     the original version was completely refactored, it works now
     '''
-    
-    def makeString(self, aList, aString, bString):
+
+    def makeString(self, aList, aString, bString, space):
         '''Makes /A strings using given list's members'''
-        pairList = [aString + '/' + a + bString for a in aList]
+        pairList = [aString + '/' + a + bString + space for a in aList]
         return ''.join(pairList)
-    
-    
-    def makePairString(self, aList, bList, aString, bString):
+
+
+    def makePairString(self, aList, bList, aString, bString, space):
         '''Returns /A/B strings using given lists's members'''
-        pairList = [aString + '/' + a + '/' + b + bString for b in bList for a in aList]
+        pairList = [aString + '/' + a + '/' + b + bString + space for b in bList for a in aList]
         return ''.join(pairList)
-    
-    
-    def makeFlipPairString(self, aList, bList, aString, bString):
+
+
+    def makeFlipPairString(self, aList, bList, aString, bString, space):
         '''Returns /A/B/A/B strings using given lists's members'''
-        pairList = [aString + '/' + a + '/' + b + bString + aString + '/' + b + '/' + a + bString for b in bList for a in aList]
+        pairList = [aString + '/' + a + '/' + b + bString + space + aString + '/' + b + '/' + a + bString + space for b in bList for a in aList]
         return ''.join(pairList)
-    
-    
-    def makeTrioString(self, aList, bList, aString, bString):
+
+
+    def makeTrioString(self, aList, bList, aString, bString, space):
         '''Returns /A/B/A strings using given lists's members'''
-        pairList = [aString + '/' + a + '/' + b +'/' + a + bString for b in bList for a in aList]
+        pairList = [aString + '/' + a + '/' + b +'/' + a + bString + space for b in bList for a in aList]
         return ''.join(pairList)
-    
-    
+
+
     def subsetList(self, aList, bList):
         '''Returns section of two lists—keeps original order of first
         this better use this than 'sets' if you need the original order'''
         temp = [a for a in aList if a in bList]
         return temp
-    
-    
+
+
     def removeEmptyString(self, aList):
         '''Removes empty string elements from list'''
         newList = [a for a in aList if a != '']
         return newList
-    
-    
+
+
     def listToString(self, aList):
         '''Convert delimiter list to delimiter string'''
         if len(aList) == 0:
@@ -336,9 +343,9 @@ class StringSmash(object):
             return '/' + aList[0]
         if len(aList) > 1:
             return '/' + '/'.join(aList)
-    
-    
-    def generateString(self, listL, listR, delimL, delimR, flip, trio, subset):
+
+
+    def generateString(self, listL, listR, delimL, delimR, flip, trio, space, subset):
         '''This generates strings'''
         if subset == True:
             # subset lists
@@ -346,7 +353,7 @@ class StringSmash(object):
             listR =  self.subsetList(self.listR, self.font)
             delimL = self.subsetList(self.delimL, self.font)
             delimR = self.subsetList(self.delimR, self.font)
-            
+
             delimL =  self.listToString(self.removeEmptyString(delimL))
             delimR =  self.listToString(self.removeEmptyString(delimR))
         else:
@@ -354,38 +361,43 @@ class StringSmash(object):
             listR = self.listR
             delimL = self.delimL
             delimR = self.delimR
-            
+
             delimL =  self.listToString(self.removeEmptyString(delimL))
             delimR =  self.listToString(self.removeEmptyString(delimR))
-        
+
+        spaceChar = ""
+        space = self.space
+        if space:
+        	spaceChar = "  "
+
         # both empty list
         if not listL and not listR:
             return 'No string at all'
-        
-        # neither list is empty   
+
+        # neither list is empty
         elif listL and listR:
             if trio:
-                return self.makeTrioString(listL, listR, delimL, delimR)
+                return self.makeTrioString(listL, listR, delimL, delimR, spaceChar)
             if flip:
-                return self.makeFlipPairString(listL, listR, delimL, delimR)
+                return self.makeFlipPairString(listL, listR, delimL, delimR, spaceChar)
             else:
-                return self.makePairString(listL, listR, delimL, delimR)       
-        
+                return self.makePairString(listL, listR, delimL, delimR, spaceChar)
+
         # both empty list
         elif not listL and not listR :
             return ''
-        
+
         # first list is an empty list
         elif listL == [] and delimL and delimR:
             listL = ['']
             listL, listR = listR, listR
-            return self.makeString(listL, delimL, delimR)
-        
+            return self.makeString(listL, delimL, delimR, spaceChar)
+
         # second list is an empty list
         elif listR == [] and delimL and delimR:
             listR = ['']
-            return self.makeString(listL, delimL, delimR)
-        
+            return self.makeString(listL, delimL, delimR, spaceChar)
+
         else:
             return 'No string at all'
 
