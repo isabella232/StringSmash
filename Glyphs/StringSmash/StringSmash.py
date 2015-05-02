@@ -45,7 +45,7 @@ class StringSmash(object):
 
     def __init__(self):
         '''A simple GUI'''
-        self.w = FloatingWindow((-360, 40, 340, 330), "StringSmash v.1.0 Mine", textured=False)
+        self.w = FloatingWindow((-360, 40, 340, 330), "StringSmash v.1.0 Mine", textured=False, autosaveName = "com.belafrank.StringSmash.mainwindow")
 
         # list selections
         presetList = sorted(StringSmashDicts.presetDict.keys())
